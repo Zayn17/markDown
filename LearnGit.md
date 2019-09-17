@@ -126,17 +126,17 @@
       ```
       $ git remote add origin git@github.com:<自己的用户名>/<仓库名>.git 
       ```
-
-	​	origin是远程库的名字，是Git默认的叫法
-
+   
+	   ​	origin是远程库的名字，是Git默认的叫法
+   
    - 把本地库的所有内容推送到远程库上（这里可能需要输入passphrase密码）
    
-      ```
-      $ git push <可填-u> origin master
-      ```
+     ```
+     $ git push <可填-u> origin master
+     ```
    
      ***-u***  如果远程库是空的，我们第一次推送master分支时，加上了***-u***参数，Git不但会把本地的*master*分支内容推送的远程新的*master*分支，还会把本地的*master*分支和远程的*master*分支关联起来，在以后的推送或者拉取时就可以简化命令。
-     
+   
      
 
 #### 从远程库克隆
