@@ -213,11 +213,11 @@ $(document).ready(funciton(){})//将document转换成jQuery对象
 
 
 
-### jquery操作样式
-
-#### css操作
+### css操作
 
 功能：设置或者修改样式，操作的是style属性。
+
+#### css()
 
 ##### 设置单个样式
 
@@ -260,39 +260,150 @@ $("div").css("background-color");
 
 
 
-#### attr操作
+#### width
 
-##### 设置单个属性
+width() 方法返回或设置匹配元素的宽度。
+
+##### 返回宽度
+
+返回第一个匹配元素的宽度。
+
+如果不为该方法设置参数，则返回以**像素计**的匹配元素的宽度。
+
+```
+$(selector).width()
+```
+
+##### 设置宽度
+
+设置所有匹配元素的宽度。
+
+```
+$(selector).width(length)
+```
+
+- length —— 可选。规定元素的宽度。如果没有规定长度单位，则使用默认的 px 单位。
+
+##### 使用函数设置宽度
 
 ```javascript
-        // 设置单个属性
-        // attr(name, value)
-        $("img").attr("alt", "呜啦啦");
-        $("img").attr("title", "错错错");
+$(selector).width(function(index,oldwidth))
 ```
 
-##### 设置多个属性
+- *function(index,oldwidth)* —— 返回要设置的值的函数
+  - *index* - 可选。接受选择器的 index 位置。
+  - *oldwidth*- 可选。接受选择器的当前值。
+
+
+
+##### innerWidth()
 
 ```javascript
-//设置多个属性
-    /*$("img").attr({
-      alt:"图破了",
-      title:"错错错",
-      aa:"bb"
-    })*/
-```
-
-##### 获得属性
-
-```
-
+console.log($("div").innerWidth());//padding+width
 ```
 
 
 
-#### class操作
+##### outerWidth()
 
-##### 添加样式类
+- true 包括margin
+
+```javascript
+console.log($("div").outerWidth());//padding+width+border
+   console.log($("div").outerWidth(true));//padding+width+border+margin
+```
+
+#### height
+
+height() 方法返回或设置匹配元素的高度。
+
+##### 返回高度
+
+返回第一个匹配元素的高度。
+
+如果不为该方法设置参数，则返回以**像素计**的匹配元素的高度。
+
+```
+$(selector).height()
+```
+
+##### 设置高度
+
+设置所有匹配元素的宽度。
+
+```
+$(selector).height(length)
+```
+
+- length —— 可选。规定元素的高度。如果没有规定长度单位，则使用默认的 px 单位。
+
+##### 使用函数设置宽度
+
+```javascript
+$(selector).width(function(index,oldheight))
+```
+
+- *function(index,oldheight)* —— 返回要设置的值的函数
+  - *index* - 可选。接受选择器的 index 位置。
+  - *oldheight*- 可选。接受选择器的当前值。
+
+  
+
+
+
+#### 获取页面可视区的宽度和高度
+
+```javascript
+    //需要获取页面可视区的宽度和高度(resize为页面变得时获取界面变化)
+   $(window).resize(function () {
+     console.log($(window).width());
+     console.log($(window).height());
+   });
+```
+
+
+
+#### offset()
+
+offset() 方法返回或设置匹配元素**相对于文档**的偏移（位置）。
+
+返回第一个匹配元素的偏移坐标。该方法返回的对象包含两个整型属性：top 和 left，以像素计。**此方法只对可见元素有效。**
+
+```
+$(selector).offset()
+```
+
+##### 设置偏移坐标
+
+```javascript
+$(selector).offset(value)
+```
+
+- value —— 必需。规定以像素计的 top 和 left 坐标。
+
+  - 值对，比如 {top:100,left:0}
+
+  - 
+
+    
+
+#### position()
+
+position() 方法返回匹配元素**相对于父元素**的位置（偏移）。
+
+该方法返回的对象包含两个整型属性：top 和 left，以像素计。
+
+**此方法只对可见元素有效。**
+
+```javascript
+$(selector).position()
+```
+
+
+
+### class操作
+
+#### 添加样式类
 
 ```javascript
 //name：需要添加的样式类名，注意参数不要带点.
@@ -301,7 +412,7 @@ addClass(name);
 $(“div”).addClass(“one”);
 ```
 
-##### 移除样式类
+#### 移除样式类
 
 ```javascript
 //name:需要移除的样式类名
@@ -310,7 +421,7 @@ removeClass(“name”);
 $(“div”).removeClass(“one”);
 ```
 
-##### 判断是否有样式类
+#### 判断是否有样式类
 
 ```javascript
 //name:用于判断的样式类名，返回值为true false
@@ -319,7 +430,7 @@ hasClass(name)
 $(“div”).hasClass(“one”);
 ```
 
-##### 切换样式类
+#### 切换样式类
 
 ```javascript
 //name:需要切换的样式类名，如果有，移除该样式，如果没有，添加该样式。
@@ -328,7 +439,7 @@ toggleClass(name);
 $(“div”).toggleClass(“one”);
 ```
 
-##### prop方法
+#### prop方法
 
 **对于布尔类型的属性**，不要attr方法，应该用prop方法 prop用法跟attr方法一样。
 
@@ -340,16 +451,19 @@ $(“div”).toggleClass(“one”);
 
 #### jQuery事件方法与JS事件方法
 
-| 方法                     | jQuery       | 原生JS        |
-| :----------------------- | ------------ | ------------- |
-| 点击事件                 | click()      | onclick()     |
-| 鼠标经过事件             | mouseover()  | onmouseover() |
-| 鼠标离开事件(与over配套) | mouseout()   | onmouseout()  |
-| 鼠标进入事件             | mouseenter() |               |
-| 鼠标离开事件             | mouseleave() |               |
-|                          |              |               |
-|                          |              |               |
-|                          |              |               |
+| 方法                                                         | jQuery              | 原生JS        |
+| :----------------------------------------------------------- | ------------------- | ------------- |
+| 点击事件                                                     | click()             | onclick()     |
+| 鼠标经过事件                                                 | mouseover()         | onmouseover() |
+| 鼠标离开事件(与over配套)                                     | mouseout()          | onmouseout()  |
+| 鼠标进入事件                                                 | mouseenter()        |               |
+| 鼠标离开事件                                                 | mouseleave()        |               |
+| 元素获得焦点                                                 | focus()             |               |
+| 元素失去焦点                                                 | blur()              |               |
+| 当调整浏览器窗口大小时，发生 resize 事件。                   | resize()            |               |
+| 当用户滚动指定的元素时，会发生 scroll 事件                   | scroll()            |               |
+| 阻止元素发生默认的行为（例如，当点击提交按钮时阻止对表单的提交）。 | e.preventDefault()  |               |
+| 阻止事件冒泡到父元素，阻止任何父事件处理程序被执行。         | e.stopPropagation() |               |
 
 ##### mouseover与mouseenter的差别
 
@@ -401,6 +515,91 @@ mouseover(): 事件在鼠标指针进入被选元素或任意子元素时都会�
 </div>
 </body>
 </html>
+```
+
+
+
+#### jQuery绑定事件方法
+
+##### delegate()
+
+delegate() 方法为指定的元素（属于被选元素的子元素）添加一个或多个事件处理程序，并规定当这些事件发生时运行的函数。
+
+使用 delegate() 方法的事件处理程序适用于当前**或未来**的元素（比如由脚本创建的新元素）。
+
+```javascript
+$(selector).delegate(childSelector,event,data,function)
+```
+
+- *childSelector* —— 必需。规定要附加事件处理程序的一个或多个子元素。 
+- *event* —— 必需。规定附加到元素的一个或多个事件。由空格分隔多个事件值。必须是有效的事件。  
+- *data* —— 可选。规定传递到函数的额外数据。 
+- *function* —— 必需。规定当事件发生时运行的函数。
+
+
+
+##### bind()
+
+bind() 方法为被选元素添加一个或多个事件处理程序，并规定事件发生时运行的函数。
+
+```
+$(selector).bind(event,data,function)
+```
+
+- event —— 必需。规定添加到元素的一个或多个事件。由空格分隔多个事件。必须是有效的事件。
+- data —— 可选。规定传递到函数的额外数据。 
+- function —— 必需。规定当事件发生时运行的函数。
+
+```javascript
+$(selector).bind({event:function, event:function, ...})
+```
+
+```javascript
+   $("p").bind({
+     click:function () {
+       alert("呵呵")
+     },
+     mouseenter:function () {
+       alert("哈哈")
+     }
+   });
+```
+
+
+
+##### bind()与delegate()的差异
+
+delegate() 委托事件，可运用在未来新创建的元素，而bind() 不能
+
+
+
+##### on()
+
+on() 方法在被选元素及子元素上添加一个或多个事件处理程序。
+
+自 jQuery 版本 1.7 起，on() 方法是 bind()、live() 和 delegate() 方法的新的替代品。该方法给 API 带来很多便利，我们推荐使用该方法，它简化了 jQuery 代码库。
+
+**注意：**使用 on() 方法添加的事件处理程序适用于当前及未来的元素（比如由脚本创建的新元素）。
+
+**提示：**如需移除事件处理程序，请使用 off() 方法。
+
+**提示：**如需添加只运行一次的事件然后移除，请使用 one()方法。
+
+```javascript
+$(selector).on(event,childSelector,data,function)
+```
+
+- event —— 必需。规定要从被选元素移除的一个或多个事件或命名空间。由空格分隔多个事件值，也可以是数组。必须是有效的事件。 
+- childSelector ——由空格分隔多个事件值，也可以是数组。必须是有效的事件。 
+- data —— 可选。规定传递到函数的额外数据。 
+- function —— 可选。规定当事件发生时运行的函数。 
+
+```javascript
+    //使用on方法的时候，可以给data参数传一个值，可以在事件里面通过e.data获取到。
+    $("div").on("click", 100, function (e) {
+        console.log(e);
+        console.log(e.data);
+    });
 ```
 
 
@@ -502,7 +701,20 @@ $("input").eq(0).click(function () {
   });
 ```
 
+##### delay()
 
+delay() 方法对队列中的下一项的执行设置延迟。
+
+```javascript
+$(selector).delay(speed,queueName)
+```
+
+- speed —— 可选。规定延迟的速度。
+  - 毫秒
+  - "slow"
+  - "fast"
+- *queueName* —— 可选。规定队列的名称。
+  - 默认是 "fx"，标准效果队列。
 
 #### jQuery杂项方法
 
@@ -510,7 +722,19 @@ $("input").eq(0).click(function () {
 | ------------------------------------ | ------- |
 | 返回当前元素在所有兄弟元素里面的索引 | index() |
 
+##### each()
 
+each() 方法为每个匹配元素规定要运行的函数。
+
+**提示：**返回 false 可用于及早停止循环。
+
+```javascript
+$(selector).each(function(index,element))
+```
+
+- function*(index,element)* —— 必需。为每个匹配元素规定运行的函数。
+  - *index* - 选择器的 index 位置。
+  - *element* - 当前的元素（也可使用 "this" 选择器）。
 
 ### 节点操作
 
@@ -612,11 +836,15 @@ $(content).prependTo(selector)
 
 ##### empty —— 清空节点
 
+- remove() - 删除被选元素（及其子元素）
+
 ```javascript
 $("div").empty();
 ```
 
 ##### remove —— 删除节点
+
+- empty() - 从被选元素中删除子元素
 
 ```javascript
 $("div").remove();
@@ -633,5 +861,208 @@ $("div").remove();
 
 ```
 $(".des").clone(true).appendTo("div");
+```
+
+
+
+### 属性操作
+
+#### val
+
+val() 方法返回或设置被选元素的值。
+
+元素的值是通过 value 属性设置的。该方法大多用于 input 元素。
+
+如果该方法未设置参数，则返回被选元素的当前值。
+
+```javascript
+$(selector).val(value)
+```
+
+- value —— 可选。规定被选元素的新内容。
+
+##### 使用函数设置Value属性的值
+
+```javascript
+$(selector).val(function(index,oldvalue))
+```
+
+- function(index,oldvalue) —— 返回要设置的值的函数
+  - index - 可选。接受选择器的 index 位置。
+  - oldvalue - 可选。接受选择器的当前 Value 属性。
+
+
+
+#### attr
+
+attr() 方法设置或返回被选元素的属性值。
+
+根据该方法不同的参数，其工作方式也有所差异。
+
+```javascript
+$(selector).attr(attribute)
+```
+
+- *attribute* —— 规定要获取其值的属性。
+
+
+
+##### 设置属性/值
+
+```javascript
+$(selector).attr(attribute,value)
+```
+
+- *attribute* —— 规定属性的名称
+- *value* —— 规定属性的值
+
+
+
+##### 使用函数来设置属性/值
+
+```javascript
+$(selector).attr(attribute,function(index,oldvalue))
+```
+
+- *attribute* —— 规定属性的名称
+
+- *function(index,oldvalue)* —— 返回要设置的值的函数
+
+  - index - 可选。接受选择器的 index 位置。
+
+  - oldvalue - 可选。接受选择器的当前 Value 属性。
+
+
+
+设置多个属性/值对
+
+```javascript
+$(selector).attr({attribute:value, attribute:value ...})
+```
+
+
+
+### jQuery文档操作
+
+#### html
+
+html() 方法返回或设置被选元素的内容 (inner HTML)。
+
+如果该方法未设置参数，则返回被选元素的当前内容。
+
+##### 返回元素内容
+
+当使用该方法返回一个值时，它会返回第一个匹配元素的内容。
+
+```javascript
+$(selector).html()
+```
+
+##### 设置元素内容
+
+当使用该方法设置一个值时，它会覆盖所有匹配元素的内容。
+
+```
+$(selector).html(content)
+```
+
+- content —— 可选。规定被选元素的新内容。该参数可包含 HTML 标签。
+
+##### 使用函数设置元素内容
+
+```javascript
+$(selector).html(function(index,oldcontent))
+```
+
+- *function(index,oldcontent)* —— 返回要设置的值的函数
+  - *index* - 可选。接受选择器的 index 位置。
+  - *oldcontent*- 可选。接受选择器的当前值。
+
+
+
+#### text
+
+text() 方法方法设置或返回被选元素的文本内容。
+
+##### 返回文本内容
+
+当该方法用于返回一个值时，它会返回所有匹配元素的组合的文本内容（会删除 HTML 标记）。
+
+```javascript
+$(selector).text()
+```
+
+
+
+##### 设置文本内容
+
+当该方法用于设置值时，它会覆盖被选元素的所有内容。
+
+```javascript
+$(selector).text(content)
+```
+
+
+
+##### 使用函数设置文本内容
+
+```javascript
+$(selector).text(function(index,oldcontent))
+```
+
+- *function(index,oldcontent)* —— 返回要设置的值的函数
+  - *index* - 可选。接受选择器的 index 位置。
+  - *oldcontent*- 可选。接受选择器的当前值。
+
+
+
+### 链式编程
+
+- 设置性操作：可以链式编程
+- 获取性操作，不能链式，因为获取性操作，数值，字符串
+- 根据返回值是不是jq对象来进行链式编程
+
+```javascript
+console.log($("div").width(200).height(200).css("backgroundColor", "pink").width());
+```
+
+
+
+### $冲突
+
+正如您已经了解到的，jQuery 使用 $ 符号作为 jQuery 的简写。
+
+其中某些框架也使用 $ 符号作为简写（就像 jQuery），如果您在用的两种不同的框架正在使用相同的简写符号，有可能导致脚本停止运行。
+
+jQuery 的团队考虑到了这个问题，并实现了 noConflict() 方法。
+
+noConflict() 方法会释放会 $ 标识符的控制，这样其他脚本就可以使用它了。
+
+**实例**
+
+```javascript
+//  可以通过全名替代简写的方式来使用 jQuery
+$.noConflict();
+jQuery(document).ready(function(){
+  jQuery("button").click(function(){
+    jQuery("p").text("jQuery 仍在运行！");
+  });
+});
+
+// 可以创建自己的简写。noConflict() 可返回对 jQuery 的引用，可以把它存入变量，以供稍后使用。
+var jq = $.noConflict();
+jq(document).ready(function(){
+  jq("button").click(function(){
+    jq("p").text("jQuery 仍在运行！");
+  });
+});
+
+// 如果你的 jQuery 代码块使用 $ 简写，并且您不愿意改变这个快捷方式，那么您可以把 $ 符号作为变量传递给 ready 方法。这样就可以在函数内使用 $ 符号了 - 而在函数外，依旧不得不使用 "jQuery"
+$.noConflict();
+jQuery(document).ready(function($){
+  $("button").click(function(){
+    $("p").text("jQuery 仍在运行！");
+  });
+});
 ```
 
