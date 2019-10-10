@@ -1066,3 +1066,45 @@ jQuery(document).ready(function($){
 });
 ```
 
+
+
+### jQuery插件的制作
+
+```javascript
+    // 第一种写法
+    jQuery.prototype.sayHi = function () {
+        console.log("Hi");
+    };
+    // 第二种写法
+    $.prototype.sayBye = function () {
+        console.log("Bye");
+    };
+    // 第三种写法
+    $.fn.sayYeah = function () {    // 第一种写法
+    jQuery.prototype.sayHi = function () {
+        console.log("Hi");
+    };
+    // 第二种写法
+    $.prototype.sayBye = function () {
+        console.log("Bye");
+    };
+    // 第三种写法
+    $.fn.sayYeah = function () {
+        console.log("Yeah");
+    };
+    $(document).sayHi();
+    $(document).sayBye();
+    $(document).sayYeah();
+        console.log("Yeah");
+    };
+```
+
+**例子**（jQuery文件的内容）
+
+```javascript
+$.fn.bgColor = function(color){
+	this.css("backgroundColor", "color");
+	return this;
+}
+```
+
