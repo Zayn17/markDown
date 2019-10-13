@@ -1305,5 +1305,57 @@ let result = reRegex.test(repeatNum);
 
   
 
+### 好用的JS函数
 
+#### addLoadEvent(func)
+
+```javascript
+// 便于添加到window.onLoad函数
+function addLoadEvent(func) {
+    var oldonload = window.onload;
+    if(typeof window.onload != 'function'){
+        window.onload =func;
+    } else {
+        window.onload = function(){
+            oldonload();
+            func();
+        }
+    }
+}
+```
+
+#### insertAfter(newElement, targetElement)
+
+```javascript
+//  insertAfter，插入到后面节点
+function insertAfter(newElement, targetElement) {
+    var parent = targetElement.parentNode;
+    if(targetElement == parent.lastChild){
+        parent.appendChild(newElement);
+    } else{
+        parent.insertBefore(newElement, targetElement.nextSibling);
+    }
+}
+```
+
+#### getHTTPObject()
+
+获取XMLHTTP对象，同时兼容所有浏览器
+
+```javascript
+function getHTTPObject() {
+    if(typeof XMLHttpRequest == "undefined"){
+        XMLHttpRequest = function () {
+            try{return new ActiveXObject("Msxml2.XMLHTTP.6.0");}
+            catch(e){}
+            try{return new ActiveXObject("Msxml2.XMLHTTP.3.0");}
+            catch(e){}
+            try{return new ActiveXObject("Msxml2.XMLHTTP");}
+            catch(e){}
+            return false;
+        }
+        return new XMLHttpRequest();
+    }
+}
+```
 
