@@ -411,7 +411,7 @@ v-text :  v-text会将元素当成纯文本输出
 
 
 
-### 使用内联样式
+#### 使用内联样式
 
 1. 直接在元素上通过 `:style` 的形式，书写样式对象
 ```html
@@ -442,3 +442,469 @@ data: {
 ```html
 <h1 :style="[h1StyleObj, h1StyleObj2]">这是一个善良的H1</h1>
 ```
+
+### 过滤器
+
+概念：Vue.js 允许你自定义过滤器，**可被用作一些常见的文本格式化**。过滤器可以用在两个地方：**mustache 插值和 v-bind 表达式**。过滤器应该被添加在 JavaScript 表达式的尾部，由“管道”符指示；
+
+#### 私有过滤器
+
+HTML元素
+
+```html
+<td>{{item.ctime | dataFormat('yyyy-mm-dd')}}</td>
+```
+
+私有 `filters` 定义方式
+
+```javascript
+filters: { // 私有局部过滤器，只能在 当前 VM 对象所控制的 View 区域进行使用
+    dataFormat(input, pattern = "") { // 在参数列表中 通过 pattern="" 来指定形参默认值，防止报错
+      var dt = new Date(input);
+      // 获取年月日
+      var y = dt.getFullYear();
+      var m = (dt.getMonth() + 1).toString().padStart(2, '0');
+      var d = dt.getDate().toString().padStart(2, '0');
+      // 如果 传递进来的字符串类型，转为小写之后，等于 yyyy-mm-dd，那么就返回 年-月-日
+      // 否则，就返回  年-月-日 时：分：秒
+      if (pattern.toLowerCase() === 'yyyy-mm-dd') {
+        return `${y}-${m}-${d}`;
+      } else {
+        // 获取时分秒
+        var hh = dt.getHours().toString().padStart(2, '0');
+        var mm = dt.getMinutes().toString().padStart(2, '0');
+        var ss = dt.getSeconds().toString().padStart(2, '0');
+        return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+      }
+    }
+  }
+```
+
+> 使用ES6中的字符串新方法 String.prototype.padStart(maxLength, fillString='') 或 String.prototype.padEnd(maxLength, fillString='')来填充字符串；
+
+#### 全局过滤器
+
+需添加在Vue的声明之前
+
+```javascript
+
+// 定义一个全局过滤器
+  // 所谓的全局过滤器，就是所有的VM实例都共享的
+Vue.filter('dataFormat', function (input, pattern = '') {
+  var dt = new Date(input);
+  // 获取年月日
+  var y = dt.getFullYear();
+  var m = (dt.getMonth() + 1).toString().padStart(2, '0');
+  var d = dt.getDate().toString().padStart(2, '0');
+  // 如果 传递进来的字符串类型，转为小写之后，等于 yyyy-mm-dd，那么就返回 年-月-日
+  // 否则，就返回  年-月-日 时：分：秒
+  if (pattern.toLowerCase() === 'yyyy-mm-dd') {
+    return `${y}-${m}-${d}`;
+  } else {
+    // 获取时分秒
+    var hh = dt.getHours().toString().padStart(2, '0');
+    var mm = dt.getMinutes().toString().padStart(2, '0');
+    var ss = dt.getSeconds().toString().padStart(2, '0');
+    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+  }
+});
+```
+
+### 键盘修饰符以及自定义键盘修饰符
+
+1. 通过`Vue.config.keyCodes.名称 = 按键值`来自定义按键修饰符的别名
+
+   HTML
+
+   ```html
+   <input type="text" v-model="name" @keyup.f2="add">
+   ```
+
+   JS
+
+   ```javascript
+   Vue.config.keyCodes.f2 = 113;
+   ```
+
+2. ```javascript
+   Vue.config.keyCodes.f2 = 113;
+   ```
+
+3. 使用 Vue 提供的绝大多数常用的按键码 
+
+   ```html
+   <input v-on:keyup.enter="submit">
+   ```
+
+4. 直接使用按键码
+
+   ```html
+   <input v-on:keyup.13="submit">
+   ```
+
+### 自定义指令
+
+#### 全局自定义指令
+
+```javascript
+// 注册一个全局自定义指令 `v-focus`
+Vue.directive('focus', {
+  // 当被绑定的元素插入到 DOM 中时……
+  inserted: function (el) {
+    // 聚焦元素
+    el.focus()
+  }
+})
+```
+
+#### 局部自定义指令
+
+```javascript
+directives: {
+  focus: {
+    // 指令的定义
+    inserted: function (el) {
+      el.focus()
+    }
+  }
+}
+```
+
+#### 钩子函数
+
+一个指令定义对象可以提供如下几个钩子函数 (均为可选)：
+
+- `bind`：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+
+  ```javascript
+  bind: function (el, binding) { 
+      // 每当指令绑定到元素上的时候，会立即执行这个 bind 函数，只执行一次
+      // 注意： 在每个 函数中，第一个参数，永远是 el ，表示 被绑定了指令的那个元素，这个 el 参数，是一个原生的JS对象
+      // 在元素 刚绑定了指令的时候，还没有 插入到 DOM中去，这时候，调用 focus 方法没有作用
+      //  因为，一个元素，只有插入DOM之后，才能获取焦点
+      // el.focus()
+      
+       // 和样式相关的操作，一般都可以在 bind 执行
+      // 样式，只要通过指令绑定给了元素，不管这个元素有没有被插入到页面中去，这个元素肯定有了一个内联的样式
+      // 将来元素肯定会显示到页面中，这时候，浏览器的渲染引擎必然会解析样式，应用给这个元素
+      el.style.color = binding.value
+        },
+  ```
+
+  
+
+- `inserted`：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
+
+  ```javascript
+        inserted: function (el) {
+            // inserted 表示元素 插入到DOM中的时候，会执行 inserted 函数【触发1次】
+          el.focus()
+          // 和JS行为有关的操作，最好在 inserted 中去执行，放置 JS行为不生效
+        },
+  ```
+
+- `update`：所在组件的 VNode 更新时调用，**但是可能发生在其子 VNode 更新之前**。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新 (详细的钩子函数参数见下)。
+
+  ```javascript
+        updated: function (el) {  
+            // 当VNode更新的时候，会执行 updated， 可能会触发多次
+        }
+  ```
+
+  
+
+- `componentUpdated`：指令所在组件的 VNode **及其子 VNode** 全部更新后调用。
+
+- `unbind`：只调用一次，指令与元素解绑时调用。
+
+#### 钩子函数参数
+
+- `el`：指令所绑定的元素，可以用来直接操作 DOM 。
+
+- binding ：一个对象，包含以下属性：
+
+  - `name`：指令名，不包括 `v-` 前缀。
+  - `value`：指令的绑定值，例如：`v-my-directive="1 + 1"` 中，绑定值为 `2`。
+  - `oldValue`：指令绑定的前一个值，仅在 `update` 和 `componentUpdated` 钩子中可用。无论值是否改变都可用。
+  - `expression`：字符串形式的指令表达式。例如 `v-my-directive="1 + 1"` 中，表达式为 `"1 + 1"`。
+  - `arg`：传给指令的参数，可选。例如 `v-my-directive:foo` 中，参数为 `"foo"`。
+  - `modifiers`：一个包含修饰符的对象。例如：`v-my-directive.foo.bar` 中，修饰符对象为 `{ foo: true, bar: true }`。
+
+- `vnode`：Vue 编译生成的虚拟节点。移步 [VNode API](https://cn.vuejs.org/v2/api/#VNode-接口) 来了解更多详情。
+
+- `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用。
+
+##### 动态指令参数
+
+ 指令的参数可以是动态的。例如，在 `v-mydirective:[argument]="value"` 中，`argument` 参数可以根据组件实例数据进行更新！这使得自定义指令可以在应用中被灵活使用。 
+
+- 通过指令值来更新数据
+
+  ```html
+  <div id="baseexample">
+    <p>Scroll down the page</p>
+    <p v-pin="200">Stick me 200px from the top of the page</p>
+  </div>
+  ```
+
+  ```javascript
+  Vue.directive('pin', {
+    bind: function (el, binding, vnode) {
+      el.style.position = 'fixed'
+      el.style.top = binding.value + 'px'
+    }
+  })
+  
+  new Vue({
+    el: '#baseexample'
+  })
+  ```
+
+- 使用动态参数
+
+  ```html
+  <div id="dynamicexample">
+    <h3>Scroll down inside this section ↓</h3>
+    <p v-pin:[direction]="200">I am pinned onto the page at 200px to the left.</p>
+  </div>
+  ```
+
+  ```javascript
+  Vue.directive('pin', {
+    bind: function (el, binding, vnode) {
+      el.style.position = 'fixed'
+      var s = (binding.arg == 'left' ? 'left' : 'top')
+      el.style[s] = binding.value + 'px'
+    }
+  })
+  
+  new Vue({
+    el: '#dynamicexample',
+    data: function () {
+      return {
+        direction: 'left'
+      }
+    }
+  })
+  ```
+
+#### 函数简写
+
+ 在很多时候，你可能想在 `bind` 和 `update` 时触发相同行为，而不关心其它的钩子。比如这样写: 
+
+```javascript
+Vue.directive('color-swatch', function (el, binding) {
+  el.style.backgroundColor = binding.value
+})
+```
+
+```javascript
+  directives: { // 自定义私有指令
+        'fontweight': { // 设置字体粗细的
+          bind: function (el, binding) {
+            el.style.fontWeight = binding.value
+          }
+        },
+        'fontsize': function (el, binding) { // 注意：这个 function 等同于 把 代码写到了 bind 和 update 中去
+          el.style.fontSize = parseInt(binding.value) + 'px'
+        }
+      }
+```
+
+
+
+#### 对象字面量
+
+ 如果指令需要多个值，可以传入一个 JavaScript 对象字面量。记住，指令函数能够接受所有合法的 JavaScript 表达式。 
+
+```html
+<div v-demo="{ color: 'white', text: 'hello!' }"></div>
+```
+
+```javascript
+Vue.directive('demo', function (el, binding) {
+  console.log(binding.value.color) // => "white"
+  console.log(binding.value.text)  // => "hello!"
+})
+```
+
+### Vue实例的生命周期
+
+什么是生命周期：从Vue实例创建、运行、到销毁期间，总是伴随着各种各样的事件，这些事件，统称为生命周期！
+
+[生命周期钩子](https://cn.vuejs.org/v2/api/#选项-生命周期钩子)：就是生命周期事件的别名而已；
+
+生命周期钩子 = 生命周期函数 = 生命周期事件
+
+主要的生命周期函数分类：
+
+ - 创建期间的生命周期函数：
+      - beforeCreate：实例刚在内存中被创建出来，此时，还没有初始化好 data 和 methods 属性
+      - created：实例已经在内存中创建OK，此时 data 和 methods 已经创建OK，此时还没有开始 编译模板
+      - beforeMount：此时已经完成了模板的编译，但是还没有挂载到页面中
+      - mounted：此时，已经将编译好的模板，挂载到了页面指定的容器中显示
+
+ - 运行期间的生命周期函数：
+     - beforeUpdate：状态更新之前执行此函数， 此时 data 中的状态值是最新的，但是界面上显示的 数据还是旧的，因为此时还没有开始重新渲染DOM节点
+     - updated：实例更新完毕之后调用此函数，此时 data 中的状态值 和 界面上显示的数据，都已经完成了更新，界面已经被重新渲染好了！
+
+ - 销毁期间的生命周期函数：
+     - beforeDestroy：实例销毁之前调用。在这一步，实例仍然完全可用。
+     - destroyed：Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+
+   ![](F:\Vue\黑马vue\配套资料\day2\笔记\lifecycle.png)
+
+### [vue-resource 实现 get, post, jsonp请求](https://github.com/pagekit/vue-resource)
+
+除了 vue-resource 之外，还可以使用 `axios` 的第三方包实现实现数据的请求
+
+#### JSONP的实现原理
+
+ + 由于浏览器的安全性限制，不允许AJAX访问 协议不同、域名不同、端口号不同的 数据接口，浏览器认为这种访问不安全；
+
+ + 可以通过动态创建script标签的形式，把script标签的src属性，指向数据接口的地址，因为script标签不存在跨域限制，这种数据获取方式，称作JSONP（注意：根据JSONP的实现原理，知晓，JSONP只支持Get请求）；
+
+   具体实现过程：
+
+  - 先在客户端定义一个回调方法，预定义对数据的操作；
+  - 再把这个回调方法的名称，通过URL传参的形式，提交到服务器的数据接口；
+  - 服务器数据接口组织好要发送给客户端的数据，再拿着客户端传递过来的回调方法名称，拼接出一个调用这个方法的字符串，发送给客户端去解析执行；
+  - 客户端拿到服务器返回的字符串之后，当作Script脚本去解析执行，这样就能够拿到JSONP的数据了；
+
+#### JSONP实例
+
+通过 Node.js ，来手动实现一个JSONP的请求例子
+
+app.js
+
+```javascript
+const http = require('http');
+    // 导入解析 URL 地址的核心模块
+    const urlModule = require('url');
+
+    const server = http.createServer();
+    // 监听 服务器的 request 请求事件，处理每个请求
+    server.on('request', (req, res) => {
+      const url = req.url;
+
+      // 解析客户端请求的URL地址
+      var info = urlModule.parse(url, true);
+
+      // 如果请求的 URL 地址是 /getjsonp ，则表示要获取JSONP类型的数据
+      if (info.pathname === '/getjsonp') {
+        // 获取客户端指定的回调函数的名称
+        var cbName = info.query.callback;
+        // 手动拼接要返回给客户端的数据对象
+        var data = {
+          name: 'zs',
+          age: 22,
+          gender: '男',
+          hobby: ['吃饭', '睡觉', '运动']
+        }
+        // 拼接出一个方法的调用，在调用这个方法的时候，把要发送给客户端的数据，序列化为字符串，作为参数传递给这个调用的方法：
+        var result = `${cbName}(${JSON.stringify(data)})`;
+        // 将拼接好的方法的调用，返回给客户端去解析执行
+        res.end(result);
+      } else {
+        res.end('404');
+      }
+    });
+
+    server.listen(3000, () => {
+      console.log('server running at http://127.0.0.1:3000');
+    });
+```
+
+vue-resource 的配置步骤：
+
+ + 直接在页面中，通过`script`标签，引入 `vue-resource` 的脚本文件；
+ + 注意：引用的先后顺序是：先引用 `Vue` 的脚本文件，再引用 `vue-resource` 的脚本文件；
+
+发送get请求：
+
+```javascript
+getInfo() { // get 方式获取数据
+  this.$http.get('http://127.0.0.1:8899/api/getlunbo').then(res => {
+    console.log(res.body);
+  })
+}
+```
+
+发送post请求：
+
+```javascript
+postInfo() {
+  var url = 'http://127.0.0.1:8899/api/post';
+  // post 方法接收三个参数：
+  // 参数1： 要请求的URL地址
+  // 参数2： 要发送的数据对象
+  // 参数3： 指定post提交的编码类型为 application/x-www-form-urlencoded
+  this.$http.post(url, { name: 'zs' }, { emulateJSON: true }).then(res => {
+    console.log(res.body);
+  });
+}
+```
+
+发送JSONP请求获取数据：
+
+```javascript
+jsonpInfo() { // JSONP形式从服务器获取数据
+  var url = 'http://127.0.0.1:8899/api/jsonp';
+  this.$http.jsonp(url).then(res => {
+    console.log(res.body);
+  });
+}
+```
+
+客户端
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function showInfo(data){
+            console.log(data)
+        }
+    </script>
+    <script src="http://127.0.0.1:3000/getscript?callback=showInfo"></script>
+</body>
+</html>
+```
+
+服务器端
+
+```javascript
+// 导入 http 内置模块
+const http = require('http')
+const urlModule = require('url')
+const server = http.createServer()
+
+server.on('request',function(req,res){
+    // const url = req.url
+    const {pathname: url, query} = urlModule.parse(req.url, true)
+
+    if(url === '/getscript'){
+        var data = {
+            name:'xjj',
+            age: 18,
+            gender: '女孩子'
+        }
+        var scriptStr = `${query.callback}(${JSON.stringify(data)})`
+        res.end(scriptStr)
+    }else {
+        res.end('404')
+    }
+})
+
+server.listen(3000, function(){
+    console.log('server listen at http://127.0.0.1:3000')
+})
+```
+
