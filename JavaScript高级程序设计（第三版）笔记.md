@@ -646,3 +646,148 @@ btn.attachEvent("onclick", function(){
 为了以跨浏览器的方式处理事件，不少开发人员会**使用能够隔离浏览器差异的 JavaScript 库**，还有一些开发人员会自己**开发最合适的事件处理的方法**。  
 
 > 见书	P354
+
+
+
+### 13.3	事件对象
+
+- 在触发 DOM 上的某个事件时，会产生一个**事件对象 event**，这个对象中包含着所有与事件有关的信息。
+- 包括导致事件的元素、事件的类型以及其他与特定事件相关的信息。
+- 例如，鼠标操作导致的事件对象中，会包含鼠标位置的信息，而键盘操作导致的事件对象中，会包含与按下的键有关的信息。**所有浏览器都支持 event 对象，但支持方式不同。**  
+
+
+
+#### 13.3.1	DOM中的事件对象
+
+兼容 DOM 的浏览器会将一个 **event 对象**传入到事件处理程序中。无论指定事件处理程序时使用什么方法（ DOM0 级或 DOM2 级），都会传入 event 对象。  
+
+```javascript
+var btn = document.getElementById("myBtn");
+btn.onclick = function(event){
+	alert(event.type); //"click"
+};
+btn.addEventListener("click", function(event){
+	alert(event.type); //"click"
+}, false);
+```
+
+![](F:\GitHub\markDown\JavaScript高级程序设计\event属性和方法1.png)
+
+![](F:\GitHub\markDown\JavaScript高级程序设计\event属性和方法2.png)
+
+在事件处理程序内部，**对象 this 始终等于 currentTarget 的值**，而 target 则只包含事件的实际目标。如果直接将事件处理程序指定给了目标元素，则 this、 currentTarget 和 target 包含相同的值。  
+
+```javascript
+// 第一个例子
+var btn = document.getElementById("myBtn");
+btn.onclick = function(event){
+	alert(event.currentTarget === this); //true
+	alert(event.target === this); //true
+};
+
+// 第二个例子
+document.body.onclick = function(event){
+	alert(event.currentTarget === document.body); //true
+	alert(this === document.body); //true
+	alert(event.target === document.getElementById("myBtn")); //true
+};
+```
+
+在需要通过一个函数处理多个事件时，可以使用 type 属性。  
+
+```javascript
+var btn = document.getElementById("myBtn");
+var handler = function(event){
+	switch(event.type){
+		case "click":
+			alert("Clicked");
+			break;
+		case "mouseover":
+			event.target.style.backgroundColor = "red";
+			break;
+		case "mouseout":
+			event.target.style.backgroundColor = "";
+			break;
+		}
+	};
+	btn.onclick = handler;
+	btn.onmouseover = handler;
+	btn.onmouseout = handler;
+```
+
+要阻止特定事件的默认行为，可以使用 **preventDefault()**方法。  
+
+**注意**： 只有 cancelable 属性设置为 true 的事件，才可以使用 preventDefault()来取消其默认行为。  
+
+```javascript
+var link = document.getElementById("myLink");
+link.onclick = function(event){
+	event.preventDefault();
+};
+```
+
+**stopPropagation()方法**用于立即停止事件在 DOM 层次中的传播，即取消进一步的事件捕获或冒泡。
+
+例如，直接添加到一个按钮的事件处理程序可以调用 stopPropagation()，从而避免触发注册在 document.body 上面的事件处理程序，如下面的例子所示。  
+
+```javascript
+var btn = document.getElementById("myBtn");
+btn.onclick = function(event){
+	alert("Clicked");
+	event.stopPropagation();
+};
+document.body.onclick = function(event){
+	alert("Body clicked");
+};
+```
+
+事件对象的 eventPhase 属性，可以用来确定事件当前正位于事件流的哪个阶段。
+- 在捕获阶段调用的事件处理程序，那么 eventPhase 等于 1
+
+- 如果事件处理程序处于目标对象上，则 eventPhase 等于 2
+
+- 如果是在冒泡阶段调用的事件处理程序， eventPhase 等于 3。
+
+**注意：**尽管“处于目标”发生在冒泡阶段，但 eventPhase 仍然一直等于 2。  
+
+```javascript
+var btn = document.getElementById("myBtn");
+btn.onclick = function(event){
+	alert(event.eventPhase); //2
+};
+document.body.addEventListener("click", function(event){
+	alert(event.eventPhase); //1
+}, true);
+document.body.onclick = function(event){
+	alert(event.eventPhase); //3
+};
+```
+
+注意：只有在事件处理程序执行期间， **event** 对象才会存在；一旦事件处理程序执行完成， **event** 对象就会被销毁。
+
+
+
+#### 13.3.2	IE的事件对象
+
+与访问 DOM 中的 event 对象不同，要访问 IE 中的 event 对象有几种不同的方式，取决于指定事件处理程序的方法。
+
+在使用 DOM0 级方法添加事件处理程序时， **event 对象作为 window 对象的一个**
+**属性存在**。
+
+```javascript
+var btn = document.getElementById("myBtn");
+btn.onclick = function(){
+	var event = window.event;
+	alert(event.type); //"click"
+};
+```
+
+  如果事件处理程序是使用 attachEvent()添加的，那么就会有一个 event 对象作为参数被传入事件处理程序函数中。
+
+```javascript
+var btn = document.getElementById("myBtn");
+btn.attachEvent("onclick", function(event){
+	alert(event.type); //"click"
+});
+```
+
